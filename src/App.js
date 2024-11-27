@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from './lib/firebase';
+import { onAuthStateChanged } from '/auth';
+import { auth } from './lib/';
 import { useStore } from './store/useStore';
 import Header from './components/Header';
 import ResumeForm from './components/ResumeForm';
