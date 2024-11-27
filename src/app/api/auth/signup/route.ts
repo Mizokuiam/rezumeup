@@ -1,7 +1,8 @@
+import { NextRequest } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import prisma from '@/lib/prisma';
 
-export async function POST(req) {
+export async function POST(req: NextRequest) {
   const { email, password } = await req.json();
 
   // Supabase signup
@@ -18,6 +19,7 @@ export async function POST(req) {
     });
     return new Response(JSON.stringify({ user: newUser }), { status: 201 });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    const error = err as Error;
+    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 }
