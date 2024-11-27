@@ -1,10 +1,10 @@
-import { NextAuthOptions } from "next-auth";
+import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/db/prisma";
 import { compare } from "bcryptjs";
 
-export const authOptions: NextAuthOptions = {
+export const authOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
@@ -65,4 +65,7 @@ export const authOptions: NextAuthOptions = {
   }
 };
 
-export { authOptions as default } from "next-auth";
+// Export NextAuth handler
+const handler = NextAuth(authOptions);
+
+export { handler as GET, handler as POST }; // Correct export pattern for Next.js API routes
