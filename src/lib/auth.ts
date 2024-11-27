@@ -1,32 +1,6 @@
-import { auth } from './';
-import { 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword,
-  signOut as SignOut
-} from '/auth';
+import { createClient } from '@supabase/supabase-js';
 
-export async function signUp(email: string, password: string) {
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    return userCredential.user;
-  } catch (error: any) {
-    throw new Error(error.message);
-  }
-}
+const supabaseUrl = 'https://xyzcompany.supabase.co';
+const supabaseAnonKey = 'public-anonymous-key';
 
-export async function signIn(email: string, password: string) {
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    return userCredential.user;
-  } catch (error: any) {
-    throw new Error(error.message);
-  }
-}
-
-export async function signOut() {
-  try {
-    await SignOut(auth);
-  } catch (error: any) {
-    throw new Error(error.message);
-  }
-}
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
