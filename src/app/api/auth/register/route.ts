@@ -2,9 +2,20 @@ import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import { prisma } from "@/lib/db/prisma";
 
-export async function POST(req: Request) {
+// Create a User interface for type safety in the response
+interface User {
+  id: string;
+  email: string;
+  name: string | null;
+}
+
+interface ErrorResponse {
+  error: string;
+}
+
+export async function POST(req: Request): Promise<NextResponse<ErrorResponse | { user: User }>> {
   try {
-    const { email, password, name } = await req.json();
+    const { email, password, name }: { email: string; password: string; name: string } = await req.json();
 
     const exists = await prisma.user.findUnique({
       where: { email }
@@ -36,6 +47,7 @@ export async function POST(req: Request) {
       }
     });
   } catch (error) {
+    console.error("Error creating user:", error);
     return NextResponse.json(
       { error: "Error creating user" },
       { status: 500 }
