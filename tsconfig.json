@@ -27,7 +27,7 @@
     "**/*.ts", 
     "**/*.tsx", 
     ".next/types/**/*.ts", 
-    "components/radix-ui.d.ts"
+    "components/*.d.ts", "other-files/**/*"
   ],
   "exclude": ["node_modules"]
 }
