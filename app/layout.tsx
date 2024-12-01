@@ -32,7 +32,7 @@ export default function RootLayout({
             <main className="container mx-auto px-4 py-8">
               {children}
             </main>
-            <Toaster />
+            <Toaster position="bottom-right" />
           </AuthProvider>
         </ThemeProvider>
       </body>

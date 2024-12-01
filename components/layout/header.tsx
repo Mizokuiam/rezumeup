@@ -16,7 +16,7 @@ import { useRouter } from "next/navigation"
 import { UpgradeDialog } from "../upgrade/upgrade-dialog"
 
 export default function Header() {
-  const { setTheme } = useTheme()
+  const { theme, setTheme } = useTheme()
   const { user } = useAuth()
   const router = useRouter()
 
