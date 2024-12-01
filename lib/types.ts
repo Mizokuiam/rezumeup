@@ -1,3 +1,12 @@
+export interface Purchase {
+  id: string
+  user_id: string
+  boosts: number
+  amount: number
+  payment_method: string
+  created_at: string
+}
+
 export interface ResumeFormData {
   fullName: string
   contactDetails: string

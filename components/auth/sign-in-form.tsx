@@ -1,11 +1,39 @@
 "use client"
 
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { signInWithGoogle } from "@/lib/supabase/auth"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { signInWithGoogle, signInWithEmail } from "@/lib/supabase/auth"
 import { toast } from "sonner"
+import { useForm } from "react-hook-form"
 
-export function SignInForm() {
-  const handleSignIn = async () => {
+interface SignInFormProps {
+  onModeChange: () => void
+}
+
+interface SignInData {
+  email: string
+  password: string
+}
+
+export function SignInForm({ onModeChange }: SignInFormProps) {
+  const [loading, setLoading] = useState(false)
+  const { register, handleSubmit, formState: { errors } } = useForm<SignInData>()
+
+  const handleEmailSignIn = async (data: SignInData) => {
+    setLoading(true)
+    try {
+      await signInWithEmail(data.email, data.password)
+      toast.success("Signed in successfully")
+    } catch (error) {
+      toast.error("Failed to sign in")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGoogleSignIn = async () => {
     try {
       await signInWithGoogle()
     } catch (error) {
@@ -15,9 +43,65 @@ export function SignInForm() {
 
   return (
     <div className="space-y-4">
-      <Button onClick={handleSignIn} variant="outline" className="w-full">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold">Welcome Back</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Sign in to your account to continue
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit(handleEmailSignIn)} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            {...register("email", { required: true })}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="password">Password</Label>
+          <Input
+            id="password"
+            type="password"
+            {...register("password", { required: true })}
+          />
+        </div>
+
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? "Signing in..." : "Sign In"}
+        </Button>
+      </form>
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">
+            Or continue with
+          </span>
+        </div>
+      </div>
+
+      <Button
+        variant="outline"
+        onClick={handleGoogleSignIn}
+        className="w-full"
+      >
         Continue with Google
       </Button>
+
+      <p className="text-center text-sm">
+        Don't have an account?{" "}
+        <button
+          onClick={onModeChange}
+          className="text-primary hover:underline"
+        >
+          Sign Up
+        </button>
+      </p>
     </div>
   )
 }
