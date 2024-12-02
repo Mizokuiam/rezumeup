@@ -4,9 +4,10 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { signInWithGoogle, signInWithEmail } from "@/lib/supabase/auth"
-import { toast } from "sonner"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useForm } from "react-hook-form"
+import { useAuth } from "./hooks/use-auth"
+import { useAuthError } from "./hooks/use-auth-error"
 
 interface SignInFormProps {
   onModeChange: () => void
@@ -18,27 +19,13 @@ interface SignInData {
 }
 
 export function SignInForm({ onModeChange }: SignInFormProps) {
-  const [loading, setLoading] = useState(false)
+  const { loading, handleEmailSignIn } = useAuth()
+  const { error, errorMessage } = useAuthError()
+  
   const { register, handleSubmit, formState: { errors } } = useForm<SignInData>()
 
-  const handleEmailSignIn = async (data: SignInData) => {
-    setLoading(true)
-    try {
-      await signInWithEmail(data.email, data.password)
-      toast.success("Signed in successfully")
-    } catch (error) {
-      toast.error("Failed to sign in")
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleGoogleSignIn = async () => {
-    try {
-      await signInWithGoogle()
-    } catch (error) {
-      toast.error("Failed to sign in with Google")
-    }
+  const onSubmit = async (data: SignInData) => {
+    await handleEmailSignIn(data.email, data.password)
   }
 
   return (
@@ -50,14 +37,30 @@ export function SignInForm({ onModeChange }: SignInFormProps) {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(handleEmailSignIn)} className="space-y-4">
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
+      )}
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input
             id="email"
             type="email"
-            {...register("email", { required: true })}
+            {...register("email", { 
+              required: "Email is required",
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                message: "Invalid email address"
+              }
+            })}
+            className={errors.email ? "border-destructive" : ""}
           />
+          {errors.email && (
+            <p className="text-sm text-destructive">{errors.email.message}</p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -65,8 +68,18 @@ export function SignInForm({ onModeChange }: SignInFormProps) {
           <Input
             id="password"
             type="password"
-            {...register("password", { required: true })}
+            {...register("password", { 
+              required: "Password is required",
+              minLength: {
+                value: 6,
+                message: "Password must be at least 6 characters"
+              }
+            })}
+            className={errors.password ? "border-destructive" : ""}
           />
+          {errors.password && (
+            <p className="text-sm text-destructive">{errors.password.message}</p>
+          )}
         </div>
 
         <Button type="submit" className="w-full" disabled={loading}>
@@ -87,7 +100,7 @@ export function SignInForm({ onModeChange }: SignInFormProps) {
 
       <Button
         variant="outline"
-        onClick={handleGoogleSignIn}
+        onClick={() => handleEmailSignIn}
         className="w-full"
       >
         Continue with Google

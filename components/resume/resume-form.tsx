@@ -8,7 +8,7 @@ import { PersonalInfoFields } from "./form-fields/personal-info"
 import { ExperienceFields } from "./form-fields/experience"
 import { JobDescriptionField } from "./form-fields/job-description"
 import { ResumeFormData } from "@/lib/types"
-import { optimizeResume } from "@/lib/resume-service"
+import { optimizeResume } from "@/lib/resume/resume-service"
 import { downloadResume } from "@/lib/resume-download"
 import { toast } from "sonner"
 import { useAuth } from "@/components/auth/auth-provider"
@@ -19,7 +19,16 @@ export default function ResumeForm() {
   const { user } = useAuth()
   const router = useRouter()
   
-  const { register, handleSubmit, formState: { errors, isValid }, watch } = useForm<ResumeFormData>()
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm<ResumeFormData>({
+    defaultValues: {
+      fullName: "",
+      contactDetails: "",
+      jobTitle: "",
+      careerObjective: "",
+      currentExperience: "",
+      jobDescription: ""
+    }
+  })
 
   const onSubmit = async (data: ResumeFormData) => {
     if (!user) {
@@ -30,15 +39,21 @@ export default function ResumeForm() {
     setIsOptimizing(true)
     try {
       const result = await optimizeResume(data)
+      
+      // Update form with optimized content
+      setValue('careerObjective', result.careerObjective)
+      setValue('currentExperience', result.currentExperience)
+      
       await downloadResume({
         ...data,
         careerObjective: result.careerObjective,
         currentExperience: result.currentExperience,
       })
+      
       toast.success("Resume optimized and downloaded successfully!")
     } catch (error) {
-      toast.error("Failed to optimize resume. Please try again.")
-      console.error(error)
+      console.error('Optimization error:', error)
+      toast.error(error instanceof Error ? error.message : "Failed to optimize resume. Please try again.")
     } finally {
       setIsOptimizing(false)
     }
@@ -55,7 +70,7 @@ export default function ResumeForm() {
         <Button
           type="submit"
           className="w-full"
-          disabled={!isValid || isOptimizing}
+          disabled={isOptimizing}
         >
           {isOptimizing ? "Optimizing..." : "Optimize Now ⚡"}
         </Button>

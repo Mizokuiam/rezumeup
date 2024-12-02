@@ -1,21 +1,19 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { signInWithGoogle } from "@/lib/supabase/auth"
-import { toast } from "sonner"
+import { useAuth } from "./hooks/use-auth"
 
 export function AuthButton() {
-  const handleSignIn = async () => {
-    try {
-      await signInWithGoogle()
-    } catch (error) {
-      toast.error("Failed to sign in with Google")
-    }
-  }
+  const { loading, handleGoogleSignIn } = useAuth()
 
   return (
-    <Button onClick={handleSignIn} variant="outline" className="w-full">
-      Continue with Google
+    <Button 
+      onClick={handleGoogleSignIn} 
+      variant="outline" 
+      className="w-full"
+      disabled={loading}
+    >
+      {loading ? "Connecting..." : "Continue with Google"}
     </Button>
   )
 }

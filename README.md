@@ -1,1 +1,2 @@
 # rezumeup
+The web app, Rezumeup, is a platform designed to help users optimize their resumes by incorporating SEO keywords extracted from job descriptions. The app will allow users to input their resume details and paste a job description to generate an optimized Word document. The primary goal is to help users tailor their resumes to meet ATS (Applicant Tracking System) requirements, improving their chances of securing job interviews.

@@ -15,7 +15,8 @@ export async function optimizeResume(data: ResumeFormData): Promise<Optimization
       throw new Error(error.error || 'Failed to optimize resume')
     }
 
-    return response.json()
+    const result = await response.json()
+    return result
   } catch (error) {
     console.error("Error optimizing resume:", error)
     throw error

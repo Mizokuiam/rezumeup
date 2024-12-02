@@ -3,6 +3,10 @@ import { ResumeFormData, OptimizationResult } from '../types';
 
 export async function optimizeResume(data: ResumeFormData): Promise<OptimizationResult> {
   try {
+    if (!data.jobDescription || !data.currentExperience || !data.careerObjective) {
+      throw new Error('Missing required resume data');
+    }
+
     const prompt = createOptimizationPrompt(data);
     const completion = await openai.chat.completions.create({
       model: "gpt-4",
@@ -14,13 +18,24 @@ export async function optimizeResume(data: ResumeFormData): Promise<Optimization
         role: "user", 
         content: prompt 
       }],
+      temperature: 0.7,
+      max_tokens: 2000,
     });
 
-    const response = completion.choices[0].message.content || '';
-    return parseOptimizationResponse(response);
+    const response = completion.choices[0]?.message?.content;
+    if (!response) {
+      throw new Error('Failed to generate optimization response');
+    }
+
+    const result = parseOptimizationResponse(response);
+    if (!result.careerObjective || !result.currentExperience) {
+      throw new Error('Invalid optimization result format');
+    }
+
+    return result;
   } catch (error) {
     console.error("Error optimizing resume:", error);
-    throw new Error("Failed to optimize resume");
+    throw new Error(error instanceof Error ? error.message : 'Failed to optimize resume');
   }
 }
 
@@ -50,19 +65,23 @@ Career Objective:
 
 Experience:
 [optimized experience]
-`
+`;
 }
 
 function parseOptimizationResponse(response: string): OptimizationResult {
-  const objectiveMatch = response.match(/Career Objective:\s*([\s\S]*?)(?=\s*Experience:)/);
-  const experienceMatch = response.match(/Experience:\s*([\s\S]*?)$/);
+  try {
+    const objectiveMatch = response.match(/Career Objective:\s*([\s\S]*?)(?=\s*Experience:|$)/i);
+    const experienceMatch = response.match(/Experience:\s*([\s\S]*?)$/i);
 
-  if (!objectiveMatch || !experienceMatch) {
-    throw new Error("Failed to parse optimization response");
+    if (!objectiveMatch?.[1] || !experienceMatch?.[1]) {
+      throw new Error('Invalid optimization response format');
+    }
+
+    return {
+      careerObjective: objectiveMatch[1].trim(),
+      currentExperience: experienceMatch[1].trim(),
+    };
+  } catch (error) {
+    throw new Error('Failed to parse optimization response');
   }
-
-  return {
-    careerObjective: objectiveMatch[1].trim(),
-    currentExperience: experienceMatch[1].trim(),
-  };
 }
