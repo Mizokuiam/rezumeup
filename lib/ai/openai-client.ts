@@ -1,10 +1,7 @@
-import OpenAI from 'openai';
-
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error('Missing OPENAI_API_KEY environment variable');
-}
+import OpenAI from 'openai'
+import { env } from '../config/env'
 
 export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: env.openai.apiKey,
   dangerouslyAllowBrowser: false
-});
+})

@@ -6,7 +6,6 @@ import { getUserBoosts, updateUserBoosts } from '@/lib/supabase/client';
 import { validateResumeData } from '@/lib/resume/resume-validator';
 
 export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
 
 export async function POST(req: Request) {
   try {

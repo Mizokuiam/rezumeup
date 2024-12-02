@@ -1,25 +1,16 @@
-const getSiteUrl = () => {
-  if (process.env.NEXT_PUBLIC_SITE_URL) {
-    return process.env.NEXT_PUBLIC_SITE_URL;
-  }
-  if (process.env.NEXT_PUBLIC_VERCEL_URL) {
-    return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`;
-  }
-  return 'http://localhost:3000';
-};
+import { env } from './env';
 
 export const authConfig = {
   supabase: {
-    url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    url: env.supabase.url,
+    anonKey: env.supabase.anonKey,
   },
   google: {
-    clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    redirectUrl: '/auth/callback',
+    clientId: env.google.clientId,
+    clientSecret: env.google.clientSecret,
   },
   urls: {
-    site: getSiteUrl(),
+    site: env.site.url,
     allowedRedirects: ['/dashboard', '/profile', '/'],
     defaultRedirect: '/dashboard',
     authCallbackUrl: '/auth/callback',
